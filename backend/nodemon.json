@@ -1,0 +1,7 @@
+{
+    "env": {
+        "DB_USER": "or",
+        "DB_PASSWORD": "Or123456",
+        "DB_NAME": "newsrael"
+    }
+}
