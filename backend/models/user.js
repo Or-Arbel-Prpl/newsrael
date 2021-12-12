@@ -8,9 +8,10 @@ const userSchema = new Schema({
 
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  email: { type: String, required: true },  
-  createdAt: { type: Date, required: true },
-});
+  email: { type: String, required: true, trim: true, unique: true, lowercase: true },  
+  image: {type: String}
+  // createdAt: { type: Date, required: true },
+}, {timestamps: true});
 
 userSchema.plugin(uniqueValidator);
 

@@ -2,32 +2,116 @@ const Post = require('../models/post');
 const Author = require('../models/author');
 const Comment = require('../models/comment');
 const mongoose = require('mongoose');
-const hashtag = require('../models/hashtag');
+const Hashtag = require('../models/hashtag');
+const Media = require('../models/media');
 
 
 const getAllPosts = async (req, res, next) => {
-    const posts = await Post.find();
-    // console.log(posts);
+  let posts;
+  let query = Post.find();
+  let page;
+  let pages;
+  let limit;
+  let hasMore;
+
+  let author, files;
+  let comments = [];
+  let hashtags = [];
+  
+    try{
+        page = parseInt(req.query.page) || 1;
+        limit = parseInt(req.query.limit) || 3; //pageSize , how much posts in each page
+
+        // const startIndex = ( req.query.skip );
+        const startIndex = ( page - 1 ) * limit; //skip
+        // const endIndex = page * limit;
+        const total = await Post.countDocuments();
+        pages = Math.ceil(total / limit);
+
+        hasMore =  (pages>page) ? true : false ;
+
+        // posts = await Post.find();
+        query = query.skip(startIndex).limit(limit).exec();
+        posts = await query;
+    }
+    catch(err){
+        const error = new Error('Something went wrong, could not fetch posts.');
+        error.code = 500;
+        return next(error); 
+    }
 
     if( !posts || posts.length === 0 ){
         const error = new Error('Could not find posts.');
         error.code = 404;
         return next(error);
     }
-    res.json({ posts: posts.map(post => post.toObject({getters: true})) });
-    // res.json({ posts });
-}
 
+    let result = []; //json variable for the response
+
+    function done(result) {
+      res.json({
+        posts: result.map(post => post.toObject({getters: true})), hasMore, pages
+      });
+    }
+
+    for(let i=0; i<posts.length ; i++ ){
+        let post = posts[i];
+        try {
+            author = await Author.findById(post.author, '-posts');
+            post.author = author;
+            comments = await Comment.find({ inResponseToPostId: post.id});
+            post.comments = comments; 
+            hashtags = await Hashtag.find().where('_id').in(post.hashtags).exec();
+            post.hashtags = hashtags;
+            files = await Media.find({ postId: post.id});
+            post.media = files;
+            
+        } catch (error) {
+            error = new Error('Something went wrong, please try again.');
+            error.code = 500;
+            return next(error);
+        }
+        result.push(post);
+        if(i+1 === posts.length){
+            done(result);
+        }
+    }
+
+// const getPostById = async (req, res, next) => {
+//     const postId = req.params.pid;
+
+//     let post;
+//     try {
+//         post = await Post.findById(postId);
+//     } catch (err) {
+//         const error = new Error('Something went wrong, could not find a post.');
+//         error.code = 500;
+//         return next(error);
+//     }
+
+//     if(!post){
+//         const error = new Error('Could not find a post for the provided id.');
+//         error.code = 404;
+//         return next(error);
+//     }
+
+
+//     res.json({post: post.toObject({getters: true})}); //from json to normal js object with id key
+// };
+
+// get posts with full data: author, comments, hashtags and media
 const getPostById = async (req, res, next) => {
     const postId = req.params.pid;
 
-    let post;
+    let post, author, files;
+    let comments = [];
+    let hashtags = [];
     try {
         post = await Post.findById(postId);
     } catch (err) {
         const error = new Error('Something went wrong, could not find a post.');
         error.code = 500;
-        return next(error); 
+        return next(error);
     }
 
     if(!post){
@@ -35,7 +119,31 @@ const getPostById = async (req, res, next) => {
         error.code = 404;
         return next(error);
     }
-    res.json({post: post.toObject({getters: true})}); //from json to normal js object with id key
+
+    try {
+        author = await Author.findById(post.author, '-posts');
+        comments = await Comment.find({ inResponseToPostId: post.id});
+        hashtags = await Hashtag.find().where('_id').in(post.hashtags).exec();
+        files = await Media.find({ postId: postId});
+        
+    } catch (error) {
+        error = new Error('Something went wrong, please try again.');
+        error.code = 500;
+        return next(error);
+    }
+
+    // console.log(files);
+    post.hashtags = hashtags;
+    post.media = files;
+    post.author = author;
+    post.comments = comments;
+    
+
+    post = post.toObject({getters: true});
+
+
+
+    res.json({post}); //from json to normal js object with id key
 };
 
 const getPostsByAuthorId = async (req, res, next) => {
@@ -57,27 +165,20 @@ const getPostsByAuthorId = async (req, res, next) => {
     res.json({posts});
 };
 
-const getPostsByHashtagId = async (req, res, next) => {
-    const hashtagId = req.params.hid;
+// const getPostsByHashtagId = async (req, res, next) => {
+//     const hashtagId = req.params.hid;
 
-    // res.send(hashtagId);
-    let posts;
-    try {
-        posts = await Post.find({ hashtags: hashtagId });
-        // posts = await Post.find({
-        //     hashtags: { $in: ['61a3814281b86bd3e5b15855'] }
-        // });
+//     let posts;
+//     try {
+//         posts = await Post.find({ hashtags: hashtagId });
+//     } catch (err) {
+//         const error = new Error('Fetching posts failed, please try again.');
+//         error.code = 500;
+//         return next(error); 
+//     }
 
-        // posts = await Post.find({ hashtags: { $elemMatch : hashtagId } });
-
-    } catch (err) {
-        const error = new Error('Fetching posts failed, please try again.');
-        error.code = 500;
-        return next(error); 
-    }
-
-    res.json({posts: posts.map(post => post.toObject({getters: true})) });
-};
+//     res.json({posts: posts.map(post => post.toObject({getters: true})) });
+// };
 
 const getPostsByDate = async (req, res, next) => {
     const date = req.params.date;
@@ -240,7 +341,7 @@ module.exports = {
     getAllPosts,
     getPostById,
     getPostsByAuthorId,
-    getPostsByHashtagId,
+    // getPostsByHashtagId,
     getPostsByDate,
     createPost,
     updatePost,

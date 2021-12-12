@@ -10,8 +10,8 @@ const authorSchema = new Schema({
     name: { type: String, required: true },
     // posts: [{ type: mongoose.Types.ObjectId}],
     posts: [{ type: mongoose.Types.ObjectId, required: true, ref: 'Post' }],
-    dateJoined: { type: Date, required: true }
-});
+    // dateJoined: { type: Date, required: true }
+}, {timestamps: true});
 
 authorSchema.plugin(uniqueValidator);
 

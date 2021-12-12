@@ -10,9 +10,10 @@ const commentSchema = new Schema({
   content: { type: String, required: true },
   inResponseToPostId: { type: mongoose.Types.ObjectId, required: true, ref: 'Post' },
   date: { type: Date, required: true },
+  image: { type: String },
   state: { type: String }
   
-});
+}, {timestamps: true});
 
 commentSchema.plugin(uniqueValidator);
 

@@ -12,15 +12,17 @@ const postSchema = new Schema({
   hashtags: [{ type: String, required: true, ref: 'Hashtag' }],
   // author: { type: String, required: true, ref: 'Author' } ,
   category: { type: String, required: true , ref: 'Category'},
-
+  
+  media: [{}],
+  comments: [{}],
   // hashtags: [{ type: mongoose.Types.ObjectId, required: true, ref: 'Hashtag' }],
   author: { type: mongoose.Types.ObjectId, required: true, ref: 'Author' } ,
   // category: { type: mongoose.Types.ObjectId, required: true , ref: 'Category'},
 
 //   image: { type: String, required: true },
-  createdAt: { type: Date, required: true },
-  updatedAt: { type: Date, required: true }
-});
+  // createdAt: { type: Date, required: true },
+  // updatedAt: { type: Date, required: true }
+}, {timestamps : true});
 
 postSchema.plugin(uniqueValidator);
 

@@ -7,6 +7,7 @@ const authorsRoutes = require('./routes/authors-routes')
 const commentsRoutes = require('./routes/comments-routes')
 const usersRoutes = require('./routes/users-routes')
 const hashtagsRoutes = require('./routes/hashtags-routes')
+const mediaRoutes= require('./routes/media-routes')
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/authors',authorsRoutes);
 app.use('/api/comments',commentsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/hashtags', hashtagsRoutes);
+app.use('/api/media', mediaRoutes);
 
 app.use((req, res, next) => {
     const error = new Error('Could not find this route.');

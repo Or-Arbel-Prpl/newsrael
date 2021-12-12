@@ -10,4 +10,7 @@ router.get('/', usersControllers.getAllUsers );
 //create a new user
 router.post('/', usersControllers.createUser );
 
+router.post('/googlelogin', usersControllers.googleLogin);
+router.post('/facebooklogin', usersControllers.facebookLogin);
+
 module.exports = router;

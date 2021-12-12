@@ -20,9 +20,11 @@ export default function MobileFooter() {
 <div class="footer_menu flex">
     <div class="menu_item">
         <Link to='/'>
+            <a href='/'>
             <div class="menu_btn btn_home">
             <div class="icon_wrapper"></div>
             </div>
+            </a>
       </Link>
     </div>
   <div class="menu_item"><a class="menu_btn btn_reporting" href="#">

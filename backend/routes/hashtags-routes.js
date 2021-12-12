@@ -11,9 +11,14 @@ router.get('/', hashtagsControllers.getAllHashtags );
 router.post('/', hashtagsControllers.addHashtag );
 
 //get hashtags by post id
-router.get('/post/:pid', hashtagsControllers.getHashtagsByPostId );
+// router.get('/post/:pid', hashtagsControllers.getHashtagsByPostId );
 
 //get hashtag by slag
-router.get('/slag/:slag', hashtagsControllers.getHashtagBySlag );
+router.get('/:slag', hashtagsControllers.getHashtagBySlag );
+
+//get posts by hashtag
+router.get('/:hid/posts', hashtagsControllers.getPostsByHashtagId );
+
+
 
 module.exports = router;

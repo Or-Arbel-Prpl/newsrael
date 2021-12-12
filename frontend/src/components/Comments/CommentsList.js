@@ -1,5 +1,7 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useContext } from 'react'
 import GetDateAndTime from '../GetDateAndTime';
+import { AuthContext } from '../Auth/auth-context'
+
 
 export default function CommentsList(props) {
     // const comments = props.comments;
@@ -9,11 +11,22 @@ export default function CommentsList(props) {
     const [newComment, setNewComment] = useState('');
     const postId = props.postId;
 
+    //auth
+    const auth = useContext(AuthContext);
+
+
 
     const toggleShowReportWarning = (id) => {
         let comment = document.getElementById(id);
         comment.classList.toggle('open');
     }
+
+    const onClickOutside = (e) => {
+        if (!e.target.className.includes('jsToggleReport')) {
+            Array.from(document.querySelectorAll('button')).forEach((el) => el.classList.remove('open'));
+        }
+      };
+    window.addEventListener("click", onClickOutside);
 
     const fetchComments = async () => {
         setIsLoading(true);
@@ -42,7 +55,7 @@ export default function CommentsList(props) {
         :
         <div class="report_wrapper">
             <button class="toggle_report jsToggleReport" type="button" onClick={() => {toggleShowReportWarning(id+'report')}}></button>
-            <button id={id+'report'} class="report_btn" type="button" onClick={() => {reportHandler(id)}}>Report this comment as abusive</button>
+            <button id={id+'report'} class="report_btn jsToggleReport" type="button" onClick={() => {reportHandler(id)}}>Report this comment as abusive</button>
         </div>
          ;
     }
@@ -68,9 +81,14 @@ export default function CommentsList(props) {
         }
 
     try {
+        let userName = JSON.parse(localStorage.getItem('userData')).userName;
+        let userImage = JSON.parse(localStorage.getItem('userData')).image;
+
+        console.log(userName);
+
      await fetch(`http://localhost:5000/api/comments/`,{
       method: 'POST',
-      body: JSON.stringify({author: 'test-author', content: value, postId: postId}),
+      body: JSON.stringify({author: userName , content: value, postId: postId, image: userImage}),
       headers: {'Content-Type': 'application/json'}
     });
     
@@ -92,7 +110,9 @@ export default function CommentsList(props) {
         comments.map((c,index) => 
         <div class="comment_row flex" key={c._id}>
                 <div class="user_icon_wrapper">
-                <div class="image_wrapper"><span class="writer_image bg_image"></span></div>
+                <div class="image_wrapper">
+                    <span class="writer_image bg_image"><img src={c.image}/></span>
+                </div>
                 </div>
                 <div class="form_wrapper">
                 <div class="comment_message">
@@ -133,8 +153,13 @@ export default function CommentsList(props) {
         maxlength="193">
     </textarea>
 
-    {/* <button class="btn btn_template" type="button" onClick={openShowAuth}>Comment</button> */}
-    <button class="btn btn_template" type="button" onClick={ () => {addNewComment(newComment)}}>Comment</button>
+    {JSON.parse(localStorage.getItem('userData')) ? 
+        <button class="btn btn_template" type="button" onClick={ () => {addNewComment(newComment)}}>Comment</button>
+     : 
+        <button class="btn btn_template" type="button" onClick={()=> props.setShowAuth(true)}>Comment</button>
+     }
+
+
   </div>
 </div>
 </div>

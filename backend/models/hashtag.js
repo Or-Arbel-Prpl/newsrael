@@ -8,9 +8,9 @@ const hashtagSchema = new Schema({
 
   name: { type: String, required: true, unique: true },
   slag: { type: String, required: true, unique: true },
+  postsCount: {type: Number}
   
-  
-});
+}, {timestamps: true});
 
 hashtagSchema.plugin(uniqueValidator);
 

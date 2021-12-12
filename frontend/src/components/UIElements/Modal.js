@@ -16,9 +16,9 @@ const ModalOverlay = props => {
         <div className={`modal__content ${props.contentClass}`}>
           {props.children}
         </div>
-        <footer className={`modal__footer ${props.footerClass}`}>
+        {/* <footer className={`modal__footer ${props.footerClass}`}>
           {props.footer}
-        </footer>
+        </footer> */}
       </form>
     </div>
   );
@@ -33,9 +33,11 @@ const Modal = props => {
         in={props.show}
         mountOnEnter
         unmountOnExit
+        
         timeout={200}
         classNames="modal"
       >
+        
         <ModalOverlay {...props} />
       </CSSTransition>
     </React.Fragment>

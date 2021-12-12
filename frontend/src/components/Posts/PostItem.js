@@ -8,83 +8,11 @@ export default function PostItem(props) {
     const [author, setAuthor] = useState();
     const [comments, setComments] = useState();
     const [hashtags, setHashtags] = useState();
+    const [media, setMedia] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     const post = props.data;
     const linkToSinglePost = `/post/${post.id}`;
-
-    useEffect(() => {
-        const fetchAuthorData = async () => {
-            setIsLoading(true);
-
-            //fetch author
-            try {
-                const response = await fetch(`http://localhost:5000/api/authors/${post.author}`);
-                const responseData = await response.json();
-                setAuthor(responseData.author);
-            } catch (err) {
-                console.log(err.message);
-            }
-
-            // fetch comments
-            try {
-                const response = await fetch(`http://localhost:5000/api/comments/post/${post.id}`);
-                const responseData = await response.json();
-                setComments(responseData.comments);
-            } catch (err) {
-                console.log(err.message);
-            }
-            
-            // fetch hashtags
-            try {
-                const response = await fetch(`http://localhost:5000/api/hashtags/post/${post.id}`, );
-                const responseData = await response.json();
-                // console.log(responseData);
-                setHashtags(responseData.hashtags);
-            } catch (err) {
-                console.log(err.message);
-            }
-            setIsLoading(false);
-        }
-
-        fetchAuthorData();
-    }, [])
-
-    // useEffect(() => {
-    //     const fetchComments = async () => {
-    //         setIsLoading(true);
-    //         try {
-    //             const response = await fetch(`http://localhost:5000/api/comments/post/${post.id}`);
-    //             const responseData = await response.json();
-    //             setComments(responseData.comments);
-    //         } catch (err) {
-    //             console.log(err.message);
-    //         }
-    //         setIsLoading(false);
-    //     }
-      
-    //     fetchComments();
-    //   }, [post]);
-
-    //   useEffect(() => {
-    //     const fetchHashtags = async () => {
-    //         setIsLoading(true);
-    //         try {
-    //             const response = await fetch(`http://localhost:5000/api/hashtags/post/${post.id}`, );
-    //             const responseData = await response.json();
-    //             console.log(responseData);
-    //             setHashtags(responseData.hashtags);
-    //         } catch (err) {
-    //             console.log(err.message);
-    //         }
-    //         setIsLoading(false);
-    //     }
-      
-    //     fetchHashtags();
-    //   }, [post]);
-      
-
-      
 
     return (
         <div>
@@ -94,7 +22,7 @@ export default function PostItem(props) {
                 </div>
             }
 
-            {!isLoading && author && comments && hashtags &&
+            {!isLoading && 
                 <div class="post_card box_shadow">
                 <div class="category_wrapper">
                 <div class="category dib blue">{post.category}</div>
@@ -108,7 +36,7 @@ export default function PostItem(props) {
                     <div class="post_title">{post.title}</div>
                     </div>
                     <div class="post_information">
-                        <span class="writer_name">{author.name}</span>
+                        <span class="writer_name">{post.author.name}</span>
                         <GetDateAndTime time={post.createdAt} />
                         </div>
                 </div>
@@ -119,15 +47,16 @@ export default function PostItem(props) {
                     </a>
 
                     <a class="post_image_wrapper" href={linkToSinglePost}>
-                        <img src="images/post_image.jpg" alt=""/>
+                        {/* <img src='https://foxrothschild.gjassets.com/content/uploads/2021/05/PUB_Israel_101051167-default-thumbnail-teaser-thumbnail-teaser-74859.jpg' alt=""/> */}
+                        <img src={post.media.length>0 ? post.media[0].url : 'https://foxrothschild.gjassets.com/content/uploads/2021/05/PUB_Israel_101051167-default-thumbnail-teaser-thumbnail-teaser-74859.jpg'} alt=""/>  
                     </a>
                     
-                    <div class="image_source">Image Source: H Breaking news</div>
+                    {/* <div class="image_source">Image Source: H Breaking news</div> */}
                 </div>
 
                 <div class="post_hashtag_list">
-                    {hashtags.length === 0 && ''}
-                    {hashtags.length > 0 && hashtags.map((h) => 
+                    {post.hashtags.length === 0 && ''}
+                    {post.hashtags.length > 0 && post.hashtags.map((h) => 
                     <a href={'/hashtags/' + h.slag}># {h.name}</a>
                     )}
                 </div>
@@ -142,8 +71,8 @@ export default function PostItem(props) {
 
                     <div class="comments_wrapper">
                         <a class="comments_count dib" href={linkToSinglePost}>
-                            {comments.length ===0 && <span>Comment</span> }
-                            {comments.length>0 && <span>{comments.length} Comments</span> }
+                            {post.comments.length === 0 && <span>Comment</span> }
+                            {post.comments.length > 0 && <span>{ post.comments.length } Comments</span> }
                         </a>
                     </div>
                 </div>
@@ -151,6 +80,8 @@ export default function PostItem(props) {
             </div>
 
             }
+
+
         </div>
     )
 }

@@ -40,23 +40,18 @@ const getCommentsForPost = async (req, res, next) => {
         return next(error);
     }
 
-    // if(!comments || comments.length === 0){
-    //     const error = new Error('Could not find comments for the provided post.');
-    //     error.code = 404;
-    //     return next(error);
-    // }
-
     res.json({comments})
 
 };
 
 const addComment = async (req, res, next) => {
-    const {author, content, postId} = req.body;
+    const {author, content, postId, image } = req.body;
 
     //check if there is a post with that id
     let post;
     try {
         post = await Post.findById(postId);
+        // console.log(post);
     } catch (err) {
         const error = new Error('Something went wrong, please try again.');
         error.code = 500;
@@ -74,8 +69,11 @@ const addComment = async (req, res, next) => {
         content,
         inResponseToPostId: postId,
         date: new Date(),
+        image: image || '',
         state: ''
     });
+
+    console.log(createdComment);
 
     try {
         await createdComment.save();
@@ -86,7 +84,6 @@ const addComment = async (req, res, next) => {
     }
     
     res.status(201).json({comment: createdComment});
-    // res.status(201).json({comment: createdComment});
 };
 
 const deleteCommentsByPostId = async (req, res, next) => {

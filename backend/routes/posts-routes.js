@@ -14,7 +14,7 @@ router.get('/:pid', postsControllers.getPostById );
 router.get('/author/:aid', postsControllers.getPostsByAuthorId );
 
 //get posts by hashtag
-router.get('/hashtag/:hid', postsControllers.getPostsByHashtagId );
+// router.get('/hashtag/:hid', postsControllers.getPostsByHashtagId );
 
 //get posts by date
 router.get('/date/:date', postsControllers.getPostsByDate );
